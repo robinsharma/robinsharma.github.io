@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --color-nba-blue: #1d428a;
+  --color-nba-red: #c8102e;
+  --color-nba-gold: #fdb927;
+  --color-nba-dark: #0a0e17;
+  --color-nba-darker: #060912;
+  --color-nba-card: #131a2e;
+  --color-nba-card-light: #1a2340;
+  --color-nba-accent: #2563eb;
+  --color-nba-green: #22c55e;
+  --color-money: #fbbf24;
+  --color-starry: #a855f7;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--color-nba-darker);
+  color: white;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  margin: 0;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(253, 185, 39, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(253, 185, 39, 0.6); }
+}
+
+@keyframes trophy-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes rank-change {
+  0% { background-color: rgba(253, 185, 39, 0.3); }
+  100% { background-color: transparent; }
+}
+
+@keyframes timer-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-trophy {
+  animation: trophy-bounce 1.5s ease-in-out infinite;
+}
+
+.animate-rank-change {
+  animation: rank-change 1.5s ease-out forwards;
+}
+
+.animate-timer-pulse {
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+
+.timer-display {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+.leaderboard-row {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-nba-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-nba-blue);
+  border-radius: 3px;
+}
