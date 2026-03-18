@@ -16,27 +16,47 @@ export function FinalResults({ state }: Props) {
     if (confettiFired.current) return;
     confettiFired.current = true;
 
-    const duration = 4000;
-    const end = Date.now() + duration;
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.style.position = 'fixed';
+      canvas.style.inset = '0';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.zIndex = '9999';
+      canvas.style.pointerEvents = 'none';
+      document.body.appendChild(canvas);
 
-    const frame = () => {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.7 },
-        colors: ['#fdb927', '#c8102e', '#1d428a', '#22c55e'],
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.7 },
-        colors: ['#fdb927', '#c8102e', '#1d428a', '#22c55e'],
-      });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    };
-    frame();
+      const myConfetti = confetti.create(canvas, { resize: true });
+      const duration = 4000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        myConfetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.7 },
+          colors: ['#fdb927', '#c8102e', '#1d428a', '#22c55e'],
+        });
+        myConfetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.7 },
+          colors: ['#fdb927', '#c8102e', '#1d428a', '#22c55e'],
+        });
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        } else {
+          setTimeout(() => {
+            canvas.remove();
+          }, 3000);
+        }
+      };
+      frame();
+    } catch {
+      // Confetti not supported — skip gracefully
+    }
   }, []);
 
   const entries = getOverallLeaderboard(state);
