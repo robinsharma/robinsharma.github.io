@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Props {
   onReset: () => void;
@@ -16,7 +17,7 @@ export function ResetButton({ onReset }: Props) {
         Reset
       </button>
 
-      {showConfirm && (
+      {showConfirm && createPortal(
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-nba-card border border-nba-card-light rounded-2xl p-6 max-w-sm w-full animate-slide-up">
             <h3 className="text-xl font-bold mb-2">Reset Everything?</h3>
@@ -41,7 +42,8 @@ export function ResetButton({ onReset }: Props) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
