@@ -23,15 +23,19 @@ export function Registration({ players, onAddPlayer, onRemovePlayer, onStart }: 
     setCameraError('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: 320, height: 320 },
+        video: { facingMode: 'user', width: { ideal: 320 }, height: { ideal: 320 } },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
       setCameraActive(true);
     } catch {
       setCameraError('Camera access denied. You can upload a photo instead.');
+    }
+  }, []);
+
+  const videoRefCallback = useCallback((node: HTMLVideoElement | null) => {
+    videoRef.current = node;
+    if (node && streamRef.current) {
+      node.srcObject = streamRef.current;
     }
   }, []);
 
@@ -123,7 +127,7 @@ export function Registration({ players, onAddPlayer, onRemovePlayer, onStart }: 
           ) : cameraActive ? (
             <div className="relative">
               <video
-                ref={videoRef}
+                ref={videoRefCallback}
                 autoPlay
                 playsInline
                 muted
