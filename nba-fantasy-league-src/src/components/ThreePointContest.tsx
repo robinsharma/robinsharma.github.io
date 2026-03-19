@@ -57,6 +57,14 @@ export function ThreePointContest({ player, onRecord }: Props) {
     setTimerRunning(true);
   };
 
+  const handleReset = () => {
+    cancelAnimationFrame(rafRef.current);
+    setTimerRunning(false);
+    setTimerDone(false);
+    setTimeLeft(TOTAL_TIME);
+    setRacks(RACK_CONFIG.map(r => new Array(r.balls).fill(false)));
+  };
+
   const toggleShot = (rackIdx: number, ballIdx: number) => {
     if (!timerRunning && !timerDone) return;
     setRacks(prev => {
@@ -129,7 +137,7 @@ export function ThreePointContest({ player, onRecord }: Props) {
         </div>
       </div>
 
-      {/* Start button or Time's up */}
+      {/* Start / Reset buttons */}
       {!timerRunning && !timerDone && (
         <button
           onClick={handleStart}
@@ -138,9 +146,25 @@ export function ThreePointContest({ player, onRecord }: Props) {
           Start Timer
         </button>
       )}
+      {timerRunning && (
+        <button
+          onClick={handleReset}
+          className="w-full py-3 bg-gray-700 text-white rounded-xl font-bold text-sm uppercase min-h-[44px] hover:bg-gray-600 transition-colors"
+        >
+          Reset Timer
+        </button>
+      )}
       {timerDone && (
-        <div className="bg-nba-red/20 border border-nba-red/40 rounded-xl p-3 text-center">
-          <p className="text-nba-red font-bold text-lg">Time's Up!</p>
+        <div className="space-y-2">
+          <div className="bg-nba-red/20 border border-nba-red/40 rounded-xl p-3 text-center">
+            <p className="text-nba-red font-bold text-lg">Time's Up!</p>
+          </div>
+          <button
+            onClick={handleReset}
+            className="w-full py-3 bg-gray-700 text-white rounded-xl font-bold text-sm uppercase min-h-[44px] hover:bg-gray-600 transition-colors"
+          >
+            Reset & Try Again
+          </button>
         </div>
       )}
 
