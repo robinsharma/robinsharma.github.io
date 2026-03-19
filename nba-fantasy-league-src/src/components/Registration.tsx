@@ -18,8 +18,17 @@ export function Registration({ players, onAddPlayer, onRemovePlayer, onStart }: 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Detect touch/mobile devices where native file input with capture works better
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   const startCamera = useCallback(async () => {
+    // On touch devices, use native camera input instead of getUserMedia
+    if (isTouchDevice) {
+      cameraInputRef.current?.click();
+      return;
+    }
     setCameraError('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -30,7 +39,7 @@ export function Registration({ players, onAddPlayer, onRemovePlayer, onStart }: 
     } catch {
       setCameraError('Camera access denied. You can upload a photo instead.');
     }
-  }, []);
+  }, [isTouchDevice]);
 
   const videoRefCallback = useCallback((node: HTMLVideoElement | null) => {
     videoRef.current = node;
@@ -62,9 +71,7 @@ export function Registration({ players, onAddPlayer, onRemovePlayer, onStart }: 
     stopCamera();
   }, [stopCamera]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processImageFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
@@ -82,6 +89,14 @@ export function Registration({ players, onAddPlayer, onRemovePlayer, onStart }: 
       img.src = reader.result as string;
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processImageFile(file);
+    // Reset the input so the same file can be re-selected
+    e.target.value = '';
   };
 
   const handleAdd = () => {
@@ -162,6 +177,16 @@ export function Registration({ players, onAddPlayer, onRemovePlayer, onStart }: 
               >
                 📁 Upload
               </button>
+              {/* Native camera input for touch devices (iOS/iPadOS/Android) */}
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="user"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              {/* File picker without capture attribute for gallery/upload */}
               <input
                 ref={fileInputRef}
                 type="file"
