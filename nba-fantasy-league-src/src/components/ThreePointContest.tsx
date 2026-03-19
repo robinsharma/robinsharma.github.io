@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import type { Player } from '../types';
 import { PlayerAvatar } from './PlayerAvatar';
 
@@ -77,7 +78,30 @@ export function ThreePointContest({ player, onRecord }: Props) {
   };
 
   return (
-    <div className="space-y-5 animate-slide-up">
+    <div className="space-y-5 animate-slide-up pb-20">
+      {/* Fixed timer bar at bottom of screen — rendered via portal to escape overflow:hidden parents */}
+      {(timerRunning || timerDone) && createPortal(
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-nba-dark/95 backdrop-blur-sm border-t border-nba-card-light shadow-[0_-4px_20px_rgba(0,0,0,0.5)] px-5 py-3">
+          <div className="max-w-5xl mx-auto flex items-center justify-between">
+            <div>
+              <p className="text-[10px] uppercase text-gray-500 tracking-wider">Time</p>
+              <p
+                className={`timer-display text-3xl font-black ${
+                  timeLeft <= 10000 && timerRunning ? 'text-nba-red animate-timer-pulse' : 'text-white'
+                }`}
+              >
+                {formatCountdown(timeLeft)}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] uppercase text-gray-500 tracking-wider">Points</p>
+              <p className="text-3xl font-black text-nba-gold">{totalPoints}</p>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Player info */}
       <div className="flex items-center gap-4">
         <PlayerAvatar photo={player.photo} name={player.name} size="lg" />
@@ -87,8 +111,8 @@ export function ThreePointContest({ player, onRecord }: Props) {
         </div>
       </div>
 
-      {/* Timer + Score row */}
-      <div className="flex items-center justify-between bg-nba-dark/60 rounded-xl px-4 py-3">
+      {/* Timer + Score row (inline, before timer starts) */}
+      <div className="flex items-center justify-between bg-nba-dark/60 rounded-xl px-4 py-3 border border-nba-card-light">
         <div>
           <p className="text-[10px] uppercase text-gray-500 tracking-wider">Time</p>
           <p
