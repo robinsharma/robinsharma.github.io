@@ -16,14 +16,24 @@ export function FinalResults({ state }: Props) {
     if (confettiFired.current) return;
     confettiFired.current = true;
 
+    let canvas: HTMLCanvasElement | null = null;
+
+    const cleanup = () => {
+      try { canvas?.remove(); } catch { /* ignore */ }
+    };
+
     try {
-      const canvas = document.createElement('canvas');
+      canvas = document.createElement('canvas');
       canvas.style.position = 'fixed';
-      canvas.style.inset = '0';
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.width = '100vw';
+      canvas.style.height = '100vh';
       canvas.style.zIndex = '9999';
       canvas.style.pointerEvents = 'none';
+      canvas.style.background = 'transparent';
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
       document.body.appendChild(canvas);
 
       const myConfetti = confetti.create(canvas, { resize: true });
@@ -31,32 +41,37 @@ export function FinalResults({ state }: Props) {
       const end = Date.now() + duration;
 
       const frame = () => {
-        myConfetti({
-          particleCount: 3,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.7 },
-          colors: ['#fdb927', '#c8102e', '#1d428a', '#22c55e'],
-        });
-        myConfetti({
-          particleCount: 3,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.7 },
-          colors: ['#fdb927', '#c8102e', '#1d428a', '#22c55e'],
-        });
+        try {
+          myConfetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.7 },
+            colors: ['#fdb927', '#c8102e', '#1d428a', '#22c55e'],
+          });
+          myConfetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.7 },
+            colors: ['#fdb927', '#c8102e', '#1d428a', '#22c55e'],
+          });
+        } catch {
+          cleanup();
+          return;
+        }
         if (Date.now() < end) {
           requestAnimationFrame(frame);
         } else {
-          setTimeout(() => {
-            canvas.remove();
-          }, 3000);
+          setTimeout(cleanup, 3000);
         }
       };
       frame();
     } catch {
-      // Confetti not supported — skip gracefully
+      cleanup();
     }
+
+    return cleanup;
   }, []);
 
   const entries = getOverallLeaderboard(state);
@@ -81,16 +96,18 @@ export function FinalResults({ state }: Props) {
       </div>
 
       {/* Top 3 podium */}
-      {ranked.length >= 3 && (
-        <div className="flex items-end justify-center gap-3 pt-4 animate-slide-up">
-          {/* 2nd place */}
-          <PodiumCard entry={ranked.find(r => r.rank === 2)!} height="h-32" medal="🥈" />
-          {/* 1st place */}
-          <PodiumCard entry={ranked.find(r => r.rank === 1)!} height="h-44" medal="👑" isWinner />
-          {/* 3rd place */}
-          <PodiumCard entry={ranked.find(r => r.rank === 3)!} height="h-24" medal="🥉" />
-        </div>
-      )}
+      {(() => {
+        const first = ranked.find(r => r.rank === 1);
+        const second = ranked.find(r => r.rank === 2) ?? ranked[1];
+        const third = ranked.find(r => r.rank === 3) ?? ranked[2];
+        return first && second && third && ranked.length >= 3 ? (
+          <div className="flex items-end justify-center gap-3 pt-4 animate-slide-up">
+            <PodiumCard entry={second} height="h-32" medal="🥈" />
+            <PodiumCard entry={first} height="h-44" medal="👑" isWinner />
+            <PodiumCard entry={third} height="h-24" medal="🥉" />
+          </div>
+        ) : null;
+      })()}
 
       {/* Full leaderboard table */}
       <div className="bg-nba-card border border-nba-card-light rounded-2xl overflow-hidden animate-slide-up">
